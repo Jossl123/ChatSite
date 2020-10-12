@@ -1,4 +1,4 @@
-const ws = new WebSocket(`ws://localhost:9898/`);
+const ws = new WebSocket(`ws://${document.location.hostname}:9898/`);
 
 //${document.location.hostname}
 
@@ -9,6 +9,7 @@ const msg_zone = document.getElementById("msg-zone");
 
 
 var name = prompt("What's your name?");
+var nameColor = "hsl(" + Math.random() * 360 + ", 100%, 75%)";
 
 while(name == "null" || name == ""){
     name = prompt("What's your name?");
@@ -22,7 +23,8 @@ ws.onopen = function() {
 
     ws.send(JSON.stringify({
         type: "newConnection",
-        nick: username
+        nick: username,
+        nameColor: nameColor
     }));
 }
 
@@ -36,7 +38,7 @@ ws.addEventListener("open", () => {
         } else if (json.type == "connected") {
             msg_zone.innerHTML += `<i>You're successfully connected as ${json.data}.</i><br>`;
         } else {
-            msg_zone.innerHTML += `<div id="message">${json.name} : ${json.data}<br></div>`;
+            msg_zone.innerHTML += `<div class="msg"><b style="color: ${json.nameColor}; height: fit-content">${json.name}</b> : ${json.data}<br></div>`;
         }
     };
 })
@@ -47,9 +49,10 @@ chat.addEventListener('keydown', function(event) {
             ws.send(JSON.stringify({
                 type: "message",
                 nick: username,
-                msg: document.getElementById("msg-bar").value
+                msg: document.getElementById("msg-bar").value,
+                nameColor: nameColor
             }));
-            document.getElementById("msg-bar").value = ""
+            document.getElementById("msg-bar").value = "";
         };
     }
 });
