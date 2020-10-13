@@ -6,12 +6,15 @@ let msgInput = document.getElementById("msg-bar");
 const sendButton = document.getElementById("send");
 const chat = document.getElementById("chat");
 const msg_zone = document.getElementById("msg-zone");
-
+const msg_bar = document.getElementById("msg-bar");
+const isTypingDiv = document.getElementById("isTyping");
 
 var name = prompt("What's your name?");
 var nameColor = "hsl(" + Math.random() * 360 + ", 100%, 75%)";
+let scrollValue = 100000000;
+let isTyping = false;
 
-while(name == "null" || name == ""){
+while (name == "null" || name == "") {
     name = prompt("What's your name?");
 }
 
@@ -31,21 +34,34 @@ ws.onopen = function() {
 ws.addEventListener("open", () => {
     console.log("We are connected");
 
-    ws.onmessage = function(msg){
+    ws.onmessage = function(msg) {
+        chat.scrollTop = scrollValue;
         var json = JSON.parse(msg.data);
         if (json.type == "newConnection") {
             msg_zone.innerHTML += `<i>${json.data} is connected.</i><br>`;
         } else if (json.type == "connected") {
             msg_zone.innerHTML += `<i>You're successfully connected as ${json.data}.</i><br>`;
+        } else if (json.type == "typing") {
+            if (json.data == true) {
+                if (isTypingDiv.innerText !== "" && !isTypingDiv.innerHTML.includes(json.name)) {
+                    isTypingDiv.innerHTML = isTypingDiv.innerHTML.split('is typing');
+                } else {
+                    isTypingDiv.innerHTML = `${json.name} is typing`;
+                }
+            } else {
+                if (isTypingDiv.innerHTML.includes(json.name)) {
+                    isTypingDiv.innerHTML.split(json.name);
+                }
+            }
         } else {
-            msg_zone.innerHTML += `<div class="msg"><b style="color: ${json.nameColor}; height: fit-content">${json.name}</b> : ${json.data}<br></div>`;
+            msg_zone.innerHTML += `<div class="msg"><b style="color: ${json.nameColor}; height: fit-content">${json.name} </b><span>${json.data}</span><br></div>`;
         }
     };
 })
 
-chat.addEventListener('keydown', function(event) {
-    if(event.key == "Enter"){
-        if(document.getElementById("msg-bar").value !== ""){
+msg_bar.addEventListener('keyup', function(event) {
+    if (event.key == "Enter") {
+        if (msg_bar.value !== "") {
             ws.send(JSON.stringify({
                 type: "message",
                 nick: username,
@@ -55,4 +71,14 @@ chat.addEventListener('keydown', function(event) {
             document.getElementById("msg-bar").value = "";
         };
     }
+    if (msg_bar.value !== "" && msg_bar.value != null) {
+        isTyping = true;
+    } else {
+        isTyping = false;
+    }
+    ws.send(JSON.stringify({
+        type: "typing",
+        data: isTyping,
+        name: username
+    }));
 });

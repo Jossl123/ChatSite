@@ -34,8 +34,6 @@ html {
     margin-top: 20px;
     margin-bottom: 20px;
     margin-left: 5px;
-    display: flex;
-    justify-content: flex-start;
     width: 100%;
     white-space: pre-line;
     overflow-wrap: break-word;
@@ -121,7 +119,7 @@ html {
     top: 0px;
     left: 0px;
     height: auto;
-    width: 20%;
+    width: 300px;
     background-color: #282b30;
     box-shadow: 1px 4px 12px 0px #20232710;
 }
@@ -164,11 +162,12 @@ html {
 #chat {
     height: 100%;
     width: 100%;
+    overflow: scroll;
 }
 
 #msg-input-zone {
     width: 100%;
-    height: 20px;
+    height: auto;
     position: fixed;
     bottom: 0px;
     background-color: #52575d;
@@ -196,6 +195,11 @@ html {
 }
 
 #msg-zone {
-    height: 100%;
+    height: auto;
     margin: 5px;
+}
+
+#isTyping {
+    height: fit-content;
+    width: fit-content;
 }
