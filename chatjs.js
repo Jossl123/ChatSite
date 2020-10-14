@@ -9,24 +9,21 @@ const msg_zone = document.getElementById("msg-zone");
 const msg_bar = document.getElementById("msg-bar");
 const isTypingDiv = document.getElementById("isTyping");
 
-var name = prompt("What's your name?");
+var name = prompt("What's your name?").trim();
 var nameColor = "hsl(" + Math.random() * 360 + ", 100%, 75%)";
 let scrollValue = 100000000;
 let isTyping = false;
+let userConnected = [];
 
 while (name == "null" || name == "") {
-    name = prompt("What's your name?");
+    name = prompt("What's your name?").trim();
 }
-
-let username;
 
 ws.onopen = function() {
 
-    username = name;
-
     ws.send(JSON.stringify({
         type: "newConnection",
-        nick: username,
+        name: name,
         nameColor: nameColor
     }));
 }
@@ -39,22 +36,40 @@ ws.addEventListener("open", () => {
         var json = JSON.parse(msg.data);
         if (json.type == "newConnection") {
             msg_zone.innerHTML += `<i>${json.data} is connected.</i><br>`;
+            userConnected = json.onlignUser;
         } else if (json.type == "connected") {
             msg_zone.innerHTML += `<i>You're successfully connected as ${json.data}.</i><br>`;
+            userConnected = json.onlignUser;
+        } else if (json.type == "nameInvalid") {
+
+            userConnected = json.userConnected;
+
+            while (userConnected.includes(name)) {
+                name = prompt("Username already used choose another one").trim();
+            }
+            ws.send(JSON.stringify({
+                type: "newConnection",
+                name: name,
+                nameColor: nameColor
+            }))
         } else if (json.type == "typing") {
-            if (json.data == true) {
-                if (isTypingDiv.innerText !== "" && !isTypingDiv.innerHTML.includes(json.name)) {
-                    isTypingDiv.innerHTML = isTypingDiv.innerHTML.split('is typing');
+            if (json.name != name) {
+                if (json.data == true) {
+                    if (isTypingDiv.innerText !== "" && !isTypingDiv.innerHTML.includes(json.name)) {
+                        isTypingDiv.innerHTML = isTypingDiv.innerHTML.replace(' is typing', `, ${json.name} is typing`);
+                    } else if (isTypingDiv.innerHTML == "") {
+                        isTypingDiv.innerHTML += `${json.name} is typing`;
+                    }
                 } else {
-                    isTypingDiv.innerHTML = `${json.name} is typing`;
-                }
-            } else {
-                if (isTypingDiv.innerHTML.includes(json.name)) {
-                    isTypingDiv.innerHTML.split(json.name);
+                    if (isTypingDiv.innerHTML.includes(json.name)) {
+                        isTypingDiv.innerHTML.replace(`${json.name}`, '');
+                    }
                 }
             }
-        } else {
+        } else if (json.type == "message") {
             msg_zone.innerHTML += `<div class="msg"><b style="color: ${json.nameColor}; height: fit-content">${json.name} </b><span>${json.data}</span><br></div>`;
+        } else if (json.type == "LostAClient") {
+            userConnected = json.data;
         }
     };
 })
@@ -64,7 +79,7 @@ msg_bar.addEventListener('keyup', function(event) {
         if (msg_bar.value !== "") {
             ws.send(JSON.stringify({
                 type: "message",
-                nick: username,
+                nick: name,
                 msg: document.getElementById("msg-bar").value,
                 nameColor: nameColor
             }));
@@ -79,6 +94,6 @@ msg_bar.addEventListener('keyup', function(event) {
     ws.send(JSON.stringify({
         type: "typing",
         data: isTyping,
-        name: username
+        name: name
     }));
 });
