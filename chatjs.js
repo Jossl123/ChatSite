@@ -62,7 +62,11 @@ ws.addEventListener("open", () => {
                     }
                 } else {
                     if (isTypingDiv.innerText !== `${json.name} is typing`) {
-                        isTypingDiv.innerHTML = isTypingDiv.innerHTML.replace(json.name + ",", '');
+                        if (isTypingDiv.innerText.includes(`${json.name} is typing`)) {
+                            isTypingDiv.innerHTML = isTypingDiv.innerHTML.replace(", " + json.name, '');
+                        } else {
+                            isTypingDiv.innerHTML = isTypingDiv.innerHTML.replace(json.name + ", ", '');
+                        }
                     } else {
                         isTypingDiv.innerHTML = "";
                     }
