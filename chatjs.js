@@ -61,10 +61,10 @@ ws.addEventListener("open", () => {
                         isTypingDiv.innerHTML += `${json.name} is typing`;
                     }
                 } else {
-                    msg_zone.innerHTML += json.name
-                    if (isTypingDiv.innerHTML.includes(json.name)) {
-                        msg_zone.innerHTML += json.name
-                        isTypingDiv.innerHTML.replace(json.name, '');
+                    if (isTypingDiv.innerText !== `${json.name} is typing`) {
+                        isTypingDiv.innerHTML = isTypingDiv.innerHTML.replace(json.name + ",", '');
+                    } else {
+                        isTypingDiv.innerHTML = "";
                     }
                 }
             }

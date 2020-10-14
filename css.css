@@ -31,9 +31,7 @@ html {
 /* Messages */
 
 .msg {
-    margin-top: 20px;
-    margin-bottom: 20px;
-    margin-left: 5px;
+    margin: 2px;
     width: 100%;
     white-space: pre-line;
     overflow-wrap: break-word;
