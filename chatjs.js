@@ -36,10 +36,10 @@ ws.addEventListener("open", () => {
         var json = JSON.parse(msg.data);
         if (json.type == "newConnection") {
             msg_zone.innerHTML += `<i>${json.data} is connected.</i><br>`;
-            userConnected = json.onlignUser;
+            userConnected = json.onlineUser;
         } else if (json.type == "connected") {
             msg_zone.innerHTML += `<i>You're successfully connected as ${json.data}.</i><br>`;
-            userConnected = json.onlignUser;
+            userConnected = json.onlineUser;
         } else if (json.type == "nameInvalid") {
 
             userConnected = json.userConnected;
@@ -61,8 +61,10 @@ ws.addEventListener("open", () => {
                         isTypingDiv.innerHTML += `${json.name} is typing`;
                     }
                 } else {
+                    msg_zone.innerHTML += json.name
                     if (isTypingDiv.innerHTML.includes(json.name)) {
-                        isTypingDiv.innerHTML.replace(`${json.name}`, '');
+                        msg_zone.innerHTML += json.name
+                        isTypingDiv.innerHTML.replace(json.name, '');
                     }
                 }
             }
@@ -79,7 +81,7 @@ msg_bar.addEventListener('keyup', function(event) {
         if (msg_bar.value !== "") {
             ws.send(JSON.stringify({
                 type: "message",
-                nick: name,
+                name: name,
                 msg: document.getElementById("msg-bar").value,
                 nameColor: nameColor
             }));
